@@ -192,7 +192,8 @@ const ManagePatients: React.FC = () => {
               <IonCol>
                 <IonTextarea
                   autoCorrect='true'
-                  autoGrow={true}
+                  autoGrow={false}
+                  rows={6}
                   placeholder="Enter Patient Description here..."
                   onIonInput={(e: any) => setDescription(e.target.value)}
                   value={description}
@@ -251,7 +252,8 @@ const ManagePatients: React.FC = () => {
               <IonCol>
                 <IonTextarea
                   autoCorrect='true'
-                  autoGrow={true}
+                  autoGrow={false}
+                  rows={5}
                   style={{ background: "var(--ion-color-light)" }}
                   onIonInput={(e: any) => setReferralDetails(e.target.value)}
                   value={referralDetails}
