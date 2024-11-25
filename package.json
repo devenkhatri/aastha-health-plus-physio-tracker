@@ -67,7 +67,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm run _encrypt",
+    "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
     "eject": "react-scripts eject",
     "_encrypt": "npx staticrypt build/index.html -d build/ --short --template-color-primary '#40205F' --template-color-secondary '#068D80' --template-button 'Enter Securely' --template-title 'Aastha Health Plus'"
