@@ -1,9 +1,9 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent, IonButton, IonIcon, IonItem, IonLabel, IonNavLink, IonRefresher, IonRefresherContent, IonToast, IonItemDivider, IonItemGroup, IonSearchbar, IonProgressBar, IonBadge, IonSegment, IonSegmentButton } from '@ionic/react';
 import { add, calendar, cloudOffline, person } from 'ionicons/icons';
 import * as _ from "lodash";
-import { refreshPage, useDataFromGoogleSheet } from '../utils';
+import { refreshPage, useGymMembersData } from '../utils';
 import ListLoadingSkeleton from '../components/ListLoadingSkeleton';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import GymMemberList from '../components/GymMemberList';
 import moment from 'moment';
 import ManageGymMembers from './ManageGymMembers';
@@ -11,14 +11,11 @@ import ManageGymMembers from './ManageGymMembers';
 const GymMembers: React.FC = () => {
   const title = "Gym Members"
 
-  const { status, data, error, isFetching } = useDataFromGoogleSheet(
+  const { status, data, error, isFetching } = useGymMembersData(
     process.env.REACT_APP_GOOGLE_API_KEY || "",
     process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
-    [],
   );
   const loading = (status === "loading");
-
-  const gymMembersData = _.filter(data, { id: "GymMembers" });
 
   let [query, setQuery] = useState("");
 
@@ -29,33 +26,41 @@ const GymMembers: React.FC = () => {
     setQuery(q)
   }
 
-  const sortedGymMembers = gymMembersData && gymMembersData.length > 0 && _.orderBy(gymMembersData[0].data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"))
-  const filteredGymMembers = sortedGymMembers && query ? _.filter(sortedGymMembers, (item: any) => item["Name"] && item["Name"].toLowerCase().indexOf(query) > -1) : sortedGymMembers;
-  // const groupedGymMembers = filteredGymMembers && _.groupBy(filteredGymMembers, (item: any) => _.toNumber(item["Months"] || 0))
-
-  const [groupedGymMembers, setGroupedGymMembers] = useState<any>();
   const [groupByValue, setGroupByValue] = useState<any>("Months");
-  useEffect(() => {
-    if (filteredGymMembers) {
-      if (groupByValue === 'Inactive') {
-        const inactiveMembers = _.filter(filteredGymMembers, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY") < moment())
-        setGroupedGymMembers(_.groupBy(inactiveMembers, (item: any) => item["Name"].charAt(0).toUpperCase()))
-      }
-      else {
-        const activeMembers = _.filter(filteredGymMembers, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY") >= moment())
-        if (groupByValue === 'Name')
-          setGroupedGymMembers(_.groupBy(activeMembers, (item: any) => item["Name"].charAt(0).toUpperCase()))
-        else
-          setGroupedGymMembers(_.groupBy(activeMembers, (item: any) => _.toNumber(item["Months"] || 0)))
-      }
-    }
-  }, [groupByValue, data, query]);
 
-  let groupedGymMemberKeys = null;
-  if (groupedGymMembers) {
-    groupedGymMemberKeys = _.orderBy(Object.keys(groupedGymMembers), (item: any) => groupByValue === 'Months' ? _.toNumber(item) : item);
-  }
-  // console.log("******* filteredGymMembers", filteredGymMembers)
+  const sortedMembers = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    return _.orderBy(data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"));
+  }, [data]);
+
+  const filteredMembers = useMemo(() => {
+    if (!query) return sortedMembers;
+    return _.filter(sortedMembers, (item: any) =>
+      item["Name"] && item["Name"].toLowerCase().indexOf(query) > -1
+    );
+  }, [sortedMembers, query]);
+
+  const groupedMembers = useMemo(() => {
+    if (!filteredMembers || filteredMembers.length === 0) return {};
+    if (groupByValue === 'Inactive') {
+      const inactiveMembers = _.filter(filteredMembers, (item: any) =>
+        moment(item["Ending Date"], "DD-MMM-YYYY") < moment()
+      );
+      return _.groupBy(inactiveMembers, (item: any) => item["Name"].charAt(0).toUpperCase());
+    }
+    const activeMembers = _.filter(filteredMembers, (item: any) =>
+      moment(item["Ending Date"], "DD-MMM-YYYY") >= moment()
+    );
+    if (groupByValue === 'Name') {
+      return _.groupBy(activeMembers, (item: any) => item["Name"].charAt(0).toUpperCase());
+    }
+    return _.groupBy(activeMembers, (item: any) => _.toNumber(item["Months"] || 0));
+  }, [filteredMembers, groupByValue]);
+
+  const sortedGroupKeys = useMemo(() =>
+    _.orderBy(Object.keys(groupedMembers), (item: any) =>
+      groupByValue === 'Months' ? _.toNumber(item) : item
+    ), [groupedMembers, groupByValue]);
 
   return (
     <IonPage id="main-content">
@@ -113,16 +118,16 @@ const GymMembers: React.FC = () => {
             </IonItem>
           }
 
-          {groupedGymMemberKeys && _.map(groupedGymMemberKeys, (months: any) => (
+          {sortedGroupKeys && _.map(sortedGroupKeys, (months: any) => (
             <IonItemGroup key={months}>
               <IonItemDivider color="primary" style={{ padding: '0.5rem 1rem', margin: '1rem 0' }}>
                 <IonLabel>{months} {groupByValue === 'Months' && `Month(s)`}</IonLabel>
-                <IonBadge color={'warning'} slot="end">{groupedGymMembers ? groupedGymMembers[months].length : 0}</IonBadge>
+                <IonBadge color={'warning'} slot="end">{groupedMembers ? groupedMembers[months].length : 0}</IonBadge>
               </IonItemDivider>
-              <GymMemberList allGymMembers={groupedGymMembers && groupedGymMembers[months]} />
+              <GymMemberList allGymMembers={groupedMembers && groupedMembers[months]} />
             </IonItemGroup>
           ))}
-          {groupedGymMemberKeys && groupedGymMemberKeys.length <= 0 && <IonItem><IonLabel color={'primary'}>No Data Found</IonLabel></IonItem>}
+          {sortedGroupKeys && sortedGroupKeys.length <= 0 && <IonItem><IonLabel color={'primary'}>No Data Found</IonLabel></IonItem>}
         </>
       </IonContent>
     </IonPage>

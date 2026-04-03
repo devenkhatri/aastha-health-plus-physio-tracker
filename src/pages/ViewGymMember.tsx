@@ -1,7 +1,7 @@
 import { IonBackButton, IonBadge, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonNavLink, IonPage, IonProgressBar, IonRefresher, IonRefresherContent, IonTitle, IonToast, IonToolbar, useIonToast } from "@ionic/react";
 import { useParams } from 'react-router-dom';
 import * as _ from "lodash";
-import { formatCurrency, getWelcomeMessage, refreshPage, sendWhatsappMessage, useDataFromGoogleSheet } from '../utils';
+import { formatCurrency, getWelcomeMessage, refreshPage, sendWhatsappMessage, useGymMembersData } from '../utils';
 import { alarmOutline, callOutline, copyOutline, logoWhatsapp, mailOutline, pencil, shareOutline } from "ionicons/icons";
 import ManageGymMembers from "./ManageGymMembers";
 import moment from "moment";
@@ -21,15 +21,12 @@ const ViewGymMember: React.FC = () => {
     const category = process.env.REACT_APP_CATEGORY || "";
     const isGymAdminAccess = (category === "gymadmin")
 
-    const { data, error, isFetching } = useDataFromGoogleSheet(
+    const { data, error, isFetching } = useGymMembersData(
         process.env.REACT_APP_GOOGLE_API_KEY || "",
         process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
-        [],
     );
 
-    const gymMembersData = _.filter(data, { id: "GymMembers" });
-
-    const filteredGymMember = gymMembersData && gymMembersData.length > 0 && _.filter(gymMembersData[0].data, { "🔒 Row ID": id })
+    const filteredGymMember = data && data.length > 0 && _.filter(data, { "🔒 Row ID": id })
     const currentGymMember: any = (filteredGymMember && filteredGymMember.length > 0) ? filteredGymMember[0] : {}
 
     const daysRemaining = currentGymMember && moment(currentGymMember["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")

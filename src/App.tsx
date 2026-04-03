@@ -48,7 +48,6 @@ import GymReports from './pages/GymReports';
 import Inquires from './pages/Inquires';
 import ViewInquiry from './pages/ViewInquiry';
 import ManageInquires from './pages/ManageInquires';
-import { useDataFromGoogleSheet } from './utils';
 import PatientSummary from './pages/PatientSummary';
 import WellnessSessions from './pages/WellnessSessions';
 import WellnessPatients from './pages/WellnessPatients';
@@ -79,12 +78,6 @@ const App: React.FC = () => {
   const isGymAdminAccess = (category === "gymadmin") && !isSummaryView
   const isGymAccess = ((category === "gym") || (category === "gymadmin")) && !isSummaryView
   const isWellnessAccess = (category === "wellness") && !isSummaryView
-
-  useDataFromGoogleSheet(
-    process.env.REACT_APP_GOOGLE_API_KEY || "",
-    process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
-    [],
-  );
 
   return (
     <IonApp>

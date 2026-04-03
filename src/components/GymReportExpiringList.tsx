@@ -9,7 +9,7 @@ import './ReportDaywise.css'
 
 const GymReportExpiringList = ({ data }: any) => {
     
-    const sortedGymMembers = data && data.length > 0 && _.orderBy(data[0].data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"))
+    const sortedGymMembers = data && data.length > 0 && _.orderBy(data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"))
     const filtedMember_2Days = sortedGymMembers && _.filter(sortedGymMembers, (item: any) => (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) > 0 && (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) <= 2 * 24)
     const filtedMember_7Days = sortedGymMembers && _.filter(sortedGymMembers, (item: any) => (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) > 2 * 24 && (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) <= 7 * 24)
     const filtedMember_15Days = sortedGymMembers && _.filter(sortedGymMembers, (item: any) => (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) > 7 * 24 && (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) <= 15 * 24)

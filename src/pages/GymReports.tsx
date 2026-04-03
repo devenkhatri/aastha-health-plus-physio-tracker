@@ -1,5 +1,6 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent, IonRefresher, IonRefresherContent, IonItem, IonLabel, IonToast, IonProgressBar, IonCard, IonList, IonCardSubtitle } from '@ionic/react';
-import { refreshPage, useDataFromGoogleSheet } from '../utils';
+import { refreshPage, useGymMembersData } from '../utils';
+import { useMemo } from 'react';
 import * as _ from "lodash";
 import ListLoadingSkeleton from '../components/ListLoadingSkeleton';
 import GymReportExpiringList from '../components/GymReportExpiringList';
@@ -11,18 +12,26 @@ import GymReportMonthwise from '../components/GymReportMonthwise';
 const GymReports: React.FC = () => {
   const title = "Gym Reports"
 
-  const { status, data, error, isFetching } = useDataFromGoogleSheet(
+  const { status, data, error, isFetching } = useGymMembersData(
     process.env.REACT_APP_GOOGLE_API_KEY || "",
     process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
-    [],
   );
   const loading = (status === "loading");
 
-  const gymMembersData = _.filter(data, { id: "GymMembers" });
+  const sortedMembers = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    return _.orderBy(data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"));
+  }, [data]);
 
-  const sortedGymMembers = gymMembersData && gymMembersData.length > 0 && _.orderBy(gymMembersData[0].data, (item: any) => moment(item["Ending Date"], "DD-MMM-YYYY"))
-  const activeMemberships = sortedGymMembers && _.filter(sortedGymMembers, (item: any) => (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) > 0)
-  const expiredMemberships = sortedGymMembers && _.filter(sortedGymMembers, (item: any) => (moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours")) <= 0)
+  const activeMemberships = useMemo(() =>
+    _.filter(sortedMembers, (item: any) =>
+      moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours") > 0
+    ), [sortedMembers]);
+
+  const expiredMemberships = useMemo(() =>
+    _.filter(sortedMembers, (item: any) =>
+      moment(item["Ending Date"], 'DD-MMM-YYYY').diff(moment(), "hours") <= 0
+    ), [sortedMembers]);
 
   function scroll(id: any) {
     var anchor = document.getElementById(id);
@@ -73,9 +82,9 @@ const GymReports: React.FC = () => {
             </IonCard>
           </IonList>
 
-          <GymReportMonthwise data={gymMembersData} />
+          <GymReportMonthwise data={data ?? []} />
 
-          <GymReportExpiringList data={gymMembersData} />
+          <GymReportExpiringList data={data ?? []} />
           <IonItem />
 
           <a id="activememberlist"></a>

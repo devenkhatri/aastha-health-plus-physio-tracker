@@ -6,7 +6,7 @@ import './ReportDaywise.css'
 
 const GymReportMonthwise = ({ data }: any) => {
 
-    const sortedGymMembers = data && data.length > 0 && _.orderBy(data[0].data, (item: any) => moment(item["Joining Date"], "DD-MMM-YYYY"), ['desc'])
+    const sortedGymMembers = data && data.length > 0 && _.orderBy(data, (item: any) => moment(item["Joining Date"], "DD-MMM-YYYY"), ['desc'])
     const groupedGymMembers = sortedGymMembers && _.groupBy(sortedGymMembers, (item: any) => moment(item["Joining Date"], "MMM-YYYY").format("MMM-YYYY"))
 
     let grandTotalCash = 0;

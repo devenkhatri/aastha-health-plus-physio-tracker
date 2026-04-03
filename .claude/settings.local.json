@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.tsx$|\\\\.ts$\")",
+      "Bash(grep -n \"console.log\\\\|TODO\\\\|FIXME\\\\|XXX\\\\|HACK\" /Users/devengoratela/Work/AasthaHealthPlus/aastha-health-plus-physio-tracker/src/pages/*.tsx)",
+      "Bash(find /Users/devengoratela/Work/AasthaHealthPlus/aastha-health-plus-physio-tracker/src -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec wc -l {} +)"
+    ]
+  }
+}

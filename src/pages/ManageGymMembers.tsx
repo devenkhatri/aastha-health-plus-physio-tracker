@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProfilePhoto from '../components/ProfilePhoto';
 import { usePhotoGallery } from '../hooks/usePhotoGallery';
-import { refreshPage, uploadFileToFirebase, useDataFromGoogleSheet } from '../utils';
+import { refreshPage, uploadFileToFirebase, useGymMembersData, useOptionsData } from '../utils';
 
 type PageParams = {
   id?: string;
@@ -36,20 +36,23 @@ const ManageGymMembers: React.FC = () => {
   const [amountReceived, setAmountReceived] = useState()
   const [amountPending, setAmountPending] = useState()
 
-  const { data, error, isFetching } = useDataFromGoogleSheet(
+  const { data: gymMembersRaw, error: gymError, isFetching: gymFetching } = useGymMembersData(
     process.env.REACT_APP_GOOGLE_API_KEY || "",
     process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
-    [],
+  );
+  const { data: optionsRaw, error: optionsError, isFetching: optionsFetching } = useOptionsData(
+    process.env.REACT_APP_GOOGLE_API_KEY || "",
+    process.env.REACT_APP_GOOGLE_SHEETS_ID || "",
   );
 
-  const optionsData = _.filter(data, { id: "Options" });
-  const allPaymentModes = optionsData && optionsData.length > 0 && _.filter(optionsData[0].data, (item: any) => item["Payment Modes"])
+  const isFetching = gymFetching || optionsFetching;
+  const error = gymError || optionsError;
+
+  const allPaymentModes = optionsRaw && _.filter(optionsRaw, (item: any) => item["Payment Modes"]);
   const defaultPaymentMode: any = allPaymentModes && allPaymentModes.length > 0 && _.head(allPaymentModes);
 
-  const gymMembersData = _.filter(data, { id: "GymMembers" });
-
-  const filteredGymMember = gymMembersData && gymMembersData.length > 0 && _.filter(gymMembersData[0].data, { "🔒 Row ID": id })
-  const currentGymMember: any = (filteredGymMember && filteredGymMember.length > 0) ? filteredGymMember[0] : {}
+  const filteredGymMember = gymMembersRaw && gymMembersRaw.length > 0 && _.filter(gymMembersRaw, { "🔒 Row ID": id });
+  const currentGymMember: any = (filteredGymMember && filteredGymMember.length > 0) ? filteredGymMember[0] : {};
 
   const [present] = useIonToast();
   const [showLoading, setShowLoading] = useState(false);

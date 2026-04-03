@@ -99,3 +99,25 @@ export function useDataFromGoogleSheet(apiKey: any, sheetId: any, sheetsOptions:
         return data;
     }, { staleTime: 5000 })
 }
+
+export function useGymMembersData(apiKey: string, sheetId: string) {
+    return useQuery("gymMembers", async () => {
+        const data = await GoogleSheetsMapper.fetchGoogleSheetsData({
+            apiKey,
+            sheetId,
+            sheetsOptions: [{ id: "GymMembers" }],
+        });
+        return data?.[0]?.data ?? [];
+    }, { staleTime: 5 * 60 * 1000 });
+}
+
+export function useOptionsData(apiKey: string, sheetId: string) {
+    return useQuery("options", async () => {
+        const data = await GoogleSheetsMapper.fetchGoogleSheetsData({
+            apiKey,
+            sheetId,
+            sheetsOptions: [{ id: "Options" }],
+        });
+        return data?.[0]?.data ?? [];
+    }, { staleTime: 5 * 60 * 1000 });
+}
