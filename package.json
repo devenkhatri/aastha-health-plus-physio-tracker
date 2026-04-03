@@ -70,7 +70,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
     "eject": "react-scripts eject",
-    "_encrypt": "npx staticrypt build/index.html -d build/ --short --template-color-primary '#40205F' --template-color-secondary '#068D80' --template-button 'Enter Securely' --template-title 'Aastha Health Plus'"
+    "_encrypt": "staticrypt build/index.html -d build/ --short --template-color-primary '#40205F' --template-color-secondary '#068D80' --template-button 'Enter Securely' --template-title 'Aastha Health Plus'"
   },
   "eslintConfig": {
     "extends": [
@@ -93,7 +93,8 @@
   "devDependencies": {
     "@capacitor/cli": "4.5.0",
     "@types/lodash": "^4.14.190",
-    "@types/preval.macro": "^3.0.0"
+    "@types/preval.macro": "^3.0.0",
+    "staticrypt": "^3.5.4"
   },
   "description": "An Ionic project"
 }
