@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Storage Upgrade — Aastha Health Plus</title>
+
+    <!-- Google Fonts: Nunito (display) + DM Sans (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — HEALTH TEAL THEME
+           Change colors here to restyle everything
+           =========================================== */
+        :root {
+            --bg:           #eef8f6;
+            --surface:      #ffffff;
+            --teal:         #0d9488;
+            --teal-light:   #14b8a6;
+            --teal-dark:    #0f766e;
+            --mint:         #ccfbf1;
+            --mint-mid:     #99f6e4;
+            --navy:         #0c2340;
+            --navy-mid:     #1e3a5f;
+            --blue:         #2563eb;
+            --text:         #0f2027;
+            --text-muted:   #64748b;
+            --border:       rgba(13, 148, 136, 0.15);
+
+            --font-display: 'Nunito', sans-serif;
+            --font-body:    'DM Sans', sans-serif;
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --dur: 0.65s;
+
+            --title-size:    clamp(1.5rem, 5vw, 4rem);
+            --h2-size:       clamp(1.2rem, 3.2vw, 2.4rem);
+            --body-size:     clamp(0.75rem, 1.4vw, 1.05rem);
+            --small-size:    clamp(0.62rem, 1vw, 0.82rem);
+            --slide-padding: clamp(1.25rem, 4vw, 3.5rem);
+            --content-gap:   clamp(0.5rem, 1.8vw, 1.75rem);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+
+        /* ===========================================
+           VIEWPORT-BASE.CSS — MANDATORY
+           =========================================== */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --title-size:    clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size:       clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --title-size:    clamp(1.1rem, 4vw, 2rem);
+                --body-size:     clamp(0.68rem, 1.2vw, 0.92rem);
+            }
+            .nav-dots { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size:    clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size:       clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size:     clamp(0.63rem, 1vw, 0.82rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .flow-row         { flex-direction: column; }
+            .flow-arrow       { transform: rotate(90deg); }
+            .challenge-grid   { grid-template-columns: 1fr; }
+            .comparison-row   { grid-template-columns: 1fr; }
+            .cmp-arrow        { display: none; }
+            .stays-grid       { grid-template-columns: 1fr; }
+            .migration-phases { grid-template-columns: 1fr; }
+            .benefits-grid    { grid-template-columns: 1fr 1fr; }
+            .next-layout      { flex-direction: column; gap: 1rem; }
+            .closing-col      { max-width: 100% !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity var(--dur) var(--ease-out-expo),
+                        transform var(--dur) var(--ease-out-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: none; }
+
+        .d1 { transition-delay: 0.06s; }
+        .d2 { transition-delay: 0.16s; }
+        .d3 { transition-delay: 0.26s; }
+        .d4 { transition-delay: 0.36s; }
+        .d5 { transition-delay: 0.46s; }
+        .d6 { transition-delay: 0.56s; }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.75rem, 1.5vw, 1.25rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(13, 148, 136, 0.22);
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .nav-dot.active { background: var(--teal); transform: scale(1.4); }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--teal), var(--blue));
+            width: 0%;
+            z-index: 200;
+            transition: width 0.35s ease;
+        }
+
+        /* ===========================================
+           SHARED ELEMENTS
+           =========================================== */
+        .slide-tag {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.4rem, 1.2vw, 0.9rem);
+            margin-bottom: clamp(0.6rem, 2vh, 1.5rem);
+        }
+        .tag-label {
+            font-size: var(--small-size);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--teal);
+            white-space: nowrap;
+        }
+        .tag-line { flex: 1; height: 1px; background: var(--border); }
+        .tag-label-light { color: var(--teal-light); }
+        .tag-line-light  { background: rgba(255,255,255,0.12); }
+
+        .slide-h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.15;
+            margin-bottom: clamp(0.35rem, 1.2vh, 0.9rem);
+        }
+        .slide-h2-light { color: #ffffff; }
+
+        .slide-body {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 54ch;
+            margin-bottom: clamp(0.6rem, 2vh, 1.6rem);
+        }
+        .slide-body-light { color: rgba(255,255,255,0.52); }
+
+        /* ===========================================
+           SLIDE 1 — TITLE
+           =========================================== */
+        .slide-title {
+            background: var(--navy);
+            flex-direction: row;
+            align-items: stretch;
+        }
+        .title-left {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            padding-right: clamp(0.75rem, 3vw, 2.5rem);
+            z-index: 2;
+        }
+        .title-right { flex: 0.9; position: relative; overflow: hidden; }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .orb-main {
+            width:  clamp(180px, 42vw, 480px);
+            height: clamp(180px, 42vw, 480px);
+            background: radial-gradient(circle at 38% 38%, var(--teal-light), var(--teal-dark));
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .orb-accent {
+            width:  clamp(70px, 16vw, 180px);
+            height: clamp(70px, 16vw, 180px);
+            background: radial-gradient(circle, rgba(153,246,228,0.5), transparent);
+            top: 12%; right: 8%;
+            animation: float 6s ease-in-out infinite;
+        }
+        .orb-blue {
+            width:  clamp(45px, 10vw, 110px);
+            height: clamp(45px, 10vw, 110px);
+            background: radial-gradient(circle, rgba(37,99,235,0.45), transparent);
+            bottom: 18%; left: 8%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-14px); }
+        }
+
+        .brand-tag {
+            font-size: var(--small-size);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--teal-light);
+            margin-bottom: clamp(0.6rem, 2vh, 1.25rem);
+        }
+        .title-h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.08;
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .title-h1 span { color: var(--teal-light); }
+        .title-sub {
+            font-size: clamp(0.82rem, 1.6vw, 1.1rem);
+            color: rgba(255,255,255,0.55);
+            line-height: 1.55;
+            max-width: 36ch;
+            margin-bottom: clamp(1rem, 2.5vh, 2rem);
+        }
+        .title-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(13, 148, 136, 0.18);
+            border: 1px solid rgba(13, 148, 136, 0.38);
+            border-radius: 100px;
+            padding: clamp(0.28rem, 0.7vw, 0.45rem) clamp(0.7rem, 1.5vw, 1.1rem);
+            font-size: var(--small-size);
+            color: var(--mint-mid);
+            font-weight: 600;
+        }
+        .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal-light); }
+
+        /* ===========================================
+           SLIDE 2 — CURRENT SETUP
+           =========================================== */
+        .slide-light { background: var(--bg); }
+
+        .flow-row {
+            display: flex;
+            align-items: stretch;
+            gap: clamp(0.3rem, 1vw, 0.75rem);
+        }
+        .flow-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(0.6rem, 1.5vw, 1rem) clamp(0.5rem, 1.2vw, 1rem);
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .flow-icon  { font-size: clamp(1.1rem, 2.2vw, 1.6rem); margin-bottom: 0.35rem; }
+        .flow-name  { font-size: clamp(0.72rem, 1.2vw, 0.9rem); font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
+        .flow-desc  { font-size: clamp(0.6rem, 0.9vw, 0.72rem); color: var(--text-muted); line-height: 1.3; }
+        .flow-arrow { align-self: center; font-size: clamp(0.9rem, 1.6vw, 1.2rem); color: var(--teal); flex-shrink: 0; font-weight: 700; }
+
+        /* ===========================================
+           SLIDE 3 — THE CHALLENGE
+           =========================================== */
+        .slide-dark { background: var(--navy); }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        .challenge-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 14px;
+            padding: clamp(0.75rem, 2vw, 1.4rem);
+        }
+        .chall-icon  { font-size: clamp(1.2rem, 2.4vw, 1.7rem); margin-bottom: clamp(0.35rem, 1vh, 0.65rem); }
+        .chall-title { font-family: var(--font-display); font-size: clamp(0.82rem, 1.4vw, 1.05rem); font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+        .chall-desc  { font-size: clamp(0.68rem, 1.05vw, 0.82rem); color: rgba(255,255,255,0.5); line-height: 1.45; }
+
+        /* ===========================================
+           SLIDE 4 — WHAT IS CLOUDINARY (split)
+           =========================================== */
+        .slide-split { flex-direction: row; align-items: stretch; }
+
+        .split-left {
+            flex: 1;
+            background: linear-gradient(155deg, var(--teal-dark) 0%, var(--navy) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            position: relative;
+            overflow: hidden;
+        }
+        .split-right {
+            flex: 1;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+        }
+        .split-brand {
+            font-size: var(--small-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--teal-light);
+            margin-bottom: clamp(0.4rem, 1.5vh, 0.9rem);
+        }
+        .split-h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.1rem, 3.2vw, 2.4rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.12;
+            margin-bottom: clamp(0.4rem, 1.5vh, 0.9rem);
+        }
+        .split-body { font-size: var(--body-size); color: rgba(255,255,255,0.58); line-height: 1.6; max-width: 28ch; }
+
+        .pill-list { display: flex; flex-direction: column; gap: clamp(0.38rem, 1.1vh, 0.8rem); }
+        .info-pill {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.3vw, 0.9rem);
+            background: var(--bg);
+            border-radius: 12px;
+            padding: clamp(0.55rem, 1.3vw, 0.9rem) clamp(0.7rem, 1.8vw, 1.3rem);
+        }
+        .pill-icon-box {
+            width:  clamp(26px, 3.8vw, 38px);
+            height: clamp(26px, 3.8vw, 38px);
+            border-radius: 8px;
+            background: var(--mint);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.75rem, 1.3vw, 1rem);
+            flex-shrink: 0;
+        }
+        .pill-title { font-size: clamp(0.76rem, 1.2vw, 0.92rem); font-weight: 600; color: var(--navy); }
+        .pill-desc  { font-size: clamp(0.62rem, 0.95vw, 0.76rem); color: var(--text-muted); }
+
+        /* ===========================================
+           SLIDE 5 — WHAT CHANGES
+           =========================================== */
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: clamp(0.5rem, 1.8vw, 1.4rem);
+            align-items: center;
+        }
+        .cmp-card { border-radius: 14px; padding: clamp(0.7rem, 1.8vw, 1.4rem); }
+        .cmp-old { background: #fef2f2; border: 1px solid #fecaca; }
+        .cmp-new { background: #f0fdf4; border: 1px solid #bbf7d0; }
+
+        .cmp-label {
+            font-size: var(--small-size);
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: clamp(0.45rem, 1.1vh, 0.7rem);
+        }
+        .cmp-old .cmp-label { color: #dc2626; }
+        .cmp-new .cmp-label { color: #16a34a; }
+
+        .cmp-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: clamp(0.35rem, 0.9vh, 0.55rem); }
+        .cmp-dot  { width: 6px; height: 6px; border-radius: 50%; margin-top: 0.45em; flex-shrink: 0; }
+        .cmp-old .cmp-dot { background: #dc2626; }
+        .cmp-new .cmp-dot { background: #16a34a; }
+        .cmp-text { font-size: clamp(0.68rem, 1.1vw, 0.85rem); color: var(--text); line-height: 1.4; }
+        .cmp-arrow { font-size: clamp(1.2rem, 2.8vw, 1.9rem); color: var(--teal); font-weight: 900; }
+
+        /* ===========================================
+           SLIDE 6 — WHAT STAYS THE SAME
+           =========================================== */
+        .stays-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.38rem, 1.1vw, 0.8rem);
+        }
+        .stays-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(0.55rem, 1.4vw, 1rem);
+            display: flex;
+            align-items: center;
+            gap: clamp(0.45rem, 1.1vw, 0.8rem);
+        }
+        .stays-check {
+            width:  clamp(22px, 3.2vw, 34px);
+            height: clamp(22px, 3.2vw, 34px);
+            border-radius: 50%;
+            background: var(--mint);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.6rem, 1.1vw, 0.85rem);
+            font-weight: 800;
+            color: var(--teal-dark);
+            flex-shrink: 0;
+        }
+        .stays-text { font-size: clamp(0.68rem, 1.1vw, 0.85rem); color: var(--text); font-weight: 500; line-height: 1.35; }
+
+        /* ===========================================
+           SLIDE 7 — MIGRATION PROCESS
+           =========================================== */
+        .migration-phases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.6rem, 1.8vw, 1.4rem);
+        }
+        .phase-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: clamp(0.8rem, 2vw, 1.6rem);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+        }
+        .phase-1::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+        .phase-2::before { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+
+        .phase-num {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: clamp(0.2rem, 0.8vh, 0.4rem);
+        }
+        .phase-1 .phase-num { color: var(--mint); }
+        .phase-2 .phase-num { color: #bfdbfe; }
+
+        .phase-title {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 1.6vw, 1.2rem);
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: clamp(0.38rem, 1vh, 0.6rem);
+        }
+        .phase-steps { list-style: none; display: flex; flex-direction: column; gap: clamp(0.28rem, 0.8vh, 0.45rem); }
+        .phase-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+            font-size: clamp(0.67rem, 1.05vw, 0.82rem);
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+        .step-num {
+            width: 17px; height: 17px;
+            border-radius: 50%;
+            font-size: 0.62rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 0.05em;
+        }
+        .phase-1 .step-num { background: var(--mint); color: var(--teal-dark); }
+        .phase-2 .step-num { background: #dbeafe; color: #1e40af; }
+
+        .live-badge {
+            margin-top: clamp(0.45rem, 1.2vh, 0.8rem);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border-radius: 100px;
+            padding: 0.28rem 0.8rem;
+            font-size: clamp(0.58rem, 0.88vw, 0.72rem);
+            font-weight: 700;
+        }
+        .phase-1 .live-badge { background: rgba(13,148,136,0.09); border: 1px solid rgba(13,148,136,0.22); color: var(--teal-dark); }
+        .phase-2 .live-badge { background: rgba(37,99,235,0.08);  border: 1px solid rgba(37,99,235,0.22);  color: #1e40af; }
+
+        /* ===========================================
+           SLIDE 8 — BENEFITS
+           =========================================== */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.38rem, 1.1vw, 0.85rem);
+        }
+        .benefit-card {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: clamp(0.7rem, 1.7vw, 1.2rem);
+            border: 1px solid var(--border);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .benefit-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(13,148,136,0.1); }
+        .ben-icon  { font-size: clamp(1rem, 2vw, 1.5rem); margin-bottom: clamp(0.3rem, 0.8vh, 0.55rem); }
+        .ben-title { font-family: var(--font-display); font-size: clamp(0.76rem, 1.2vw, 0.95rem); font-weight: 700; color: var(--navy); margin-bottom: 0.28rem; line-height: 1.2; }
+        .ben-desc  { font-size: clamp(0.62rem, 0.95vw, 0.75rem); color: var(--text-muted); line-height: 1.4; }
+
+        /* ===========================================
+           SLIDE 9 — NEXT STEPS
+           =========================================== */
+        .next-layout {
+            display: flex;
+            gap: clamp(1.5rem, 4vw, 3.5rem);
+            align-items: flex-start;
+        }
+        .next-col { flex: 1; }
+
+        .action-steps { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.4vh, 0.95rem); }
+        .action-step  { display: flex; align-items: flex-start; gap: clamp(0.55rem, 1.3vw, 0.9rem); }
+        .action-circle {
+            width:  clamp(26px, 3.8vw, 38px);
+            height: clamp(26px, 3.8vw, 38px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: #fff;
+            font-family: var(--font-display);
+            font-size: clamp(0.68rem, 1.1vw, 0.85rem);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .action-title { font-size: clamp(0.76rem, 1.2vw, 0.92rem); font-weight: 600; color: var(--navy); margin-bottom: 0.18rem; }
+        .action-desc  { font-size: clamp(0.62rem, 0.95vw, 0.75rem); color: var(--text-muted); line-height: 1.35; }
+
+        .closing-card {
+            background: linear-gradient(140deg, var(--navy) 0%, var(--navy-mid) 100%);
+            border-radius: 20px;
+            padding: clamp(1.1rem, 3vw, 2.2rem);
+            position: relative;
+            overflow: hidden;
+        }
+        .closing-orb {
+            position: absolute;
+            border-radius: 50%;
+            width:  clamp(80px, 18vw, 170px);
+            height: clamp(80px, 18vw, 170px);
+            background: radial-gradient(circle, rgba(13,148,136,0.32), transparent);
+            top: -20%; right: -8%;
+            pointer-events: none;
+        }
+        .closing-h { font-family: var(--font-display); font-size: clamp(1rem, 2.4vw, 1.75rem); font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: clamp(0.35rem, 1vh, 0.65rem); }
+        .closing-p { font-size: clamp(0.68rem, 1.05vw, 0.82rem); color: rgba(255,255,255,0.58); line-height: 1.5; }
+        .closing-tag {
+            margin-top: clamp(0.5rem, 1.4vh, 1rem);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(13,148,136,0.22);
+            border-radius: 100px;
+            padding: 0.28rem 0.8rem;
+            font-size: clamp(0.58rem, 0.88vw, 0.72rem);
+            font-weight: 700;
+            color: var(--mint-mid);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+
+    <!-- ===================== SLIDE 1 — TITLE ===================== -->
+    <section class="slide slide-title" id="slide-0" aria-label="Title">
+        <div class="title-left">
+            <div class="brand-tag reveal d1">Aastha Health Plus · Infrastructure Update</div>
+            <h1 class="title-h1 reveal d2">
+                Upgrading<br>Your Image<br><span>Storage</span>
+            </h1>
+            <p class="title-sub reveal d3">
+                A smooth, zero-downtime migration from Firebase to Cloudinary — every photo preserved, the app faster than ever.
+            </p>
+            <div class="title-pill reveal d4">
+                <div class="pill-dot"></div>
+                Gym Members · Wellness Patients · Inquiries
+            </div>
+        </div>
+        <div class="title-right" aria-hidden="true">
+            <div class="orb orb-main"></div>
+            <div class="orb orb-accent"></div>
+            <div class="orb orb-blue"></div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 2 — HOW IT WORKS TODAY ===================== -->
+    <section class="slide slide-light" id="slide-1" aria-label="Current setup">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label">Today</span>
+                <div class="tag-line"></div>
+            </div>
+            <h2 class="slide-h2 reveal d2">How Profile Photos Work Today</h2>
+            <p class="slide-body reveal d3">
+                When a photo is captured in the app, it travels through four steps before appearing on a member's profile.
+            </p>
+            <div class="flow-row reveal d4">
+                <div class="flow-step">
+                    <div class="flow-icon">📷</div>
+                    <div class="flow-name">Capture</div>
+                    <div class="flow-desc">Photo taken on device camera</div>
+                </div>
+                <div class="flow-arrow" aria-hidden="true">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">☁️</div>
+                    <div class="flow-name">Upload</div>
+                    <div class="flow-desc">Sent to Firebase Storage</div>
+                </div>
+                <div class="flow-arrow" aria-hidden="true">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">📊</div>
+                    <div class="flow-name">Save URL</div>
+                    <div class="flow-desc">Link saved to Google Sheets</div>
+                </div>
+                <div class="flow-arrow" aria-hidden="true">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">👤</div>
+                    <div class="flow-name">Display</div>
+                    <div class="flow-desc">Photo shown on member profile</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 3 — WHY WE'RE CHANGING ===================== -->
+    <section class="slide slide-dark" id="slide-2" aria-label="The challenge">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label tag-label-light">The Challenge</span>
+                <div class="tag-line tag-line-light"></div>
+            </div>
+            <h2 class="slide-h2 slide-h2-light reveal d2">Why We're Making This Change</h2>
+            <p class="slide-body slide-body-light reveal d3">
+                Firebase Storage served us well — but it's a general database tool, not a media platform.
+            </p>
+            <div class="challenge-grid">
+                <div class="challenge-card reveal d3">
+                    <div class="chall-icon">💸</div>
+                    <div class="chall-title">Rising Costs</div>
+                    <div class="chall-desc">Firebase charges increase as your member base grows, with no generous free tier for storage.</div>
+                </div>
+                <div class="challenge-card reveal d4">
+                    <div class="chall-icon">🐢</div>
+                    <div class="chall-title">No CDN Delivery</div>
+                    <div class="chall-desc">Images are served from a single region, meaning slower loading for users on different connections.</div>
+                </div>
+                <div class="challenge-card reveal d5">
+                    <div class="chall-icon">🔧</div>
+                    <div class="chall-title">Limited Media Features</div>
+                    <div class="chall-desc">Firebase lacks image-specific tools — no auto-compression, no resizing, no media management.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 4 — WHAT IS CLOUDINARY ===================== -->
+    <section class="slide slide-split" id="slide-3" aria-label="What is Cloudinary">
+        <div class="split-left">
+            <div class="orb orb-accent" style="animation:none; top:-12%; right:-12%; width:clamp(90px,22vw,240px); height:clamp(90px,22vw,240px);" aria-hidden="true"></div>
+            <div class="orb orb-blue"   style="animation:none; bottom:8%; left:-4%; width:clamp(55px,12vw,130px); height:clamp(55px,12vw,130px);" aria-hidden="true"></div>
+            <div class="split-brand reveal d1">Introducing</div>
+            <h2 class="split-h2 reveal d2">Cloudinary —<br>Built for<br>Images</h2>
+            <p class="split-body reveal d3">
+                A dedicated media platform used by thousands of apps worldwide, designed specifically to store, deliver, and optimise images at any scale.
+            </p>
+        </div>
+        <div class="split-right">
+            <div class="pill-list">
+                <div class="info-pill reveal d1">
+                    <div class="pill-icon-box">🌍</div>
+                    <div>
+                        <div class="pill-title">Global CDN Delivery</div>
+                        <div class="pill-desc">Images served from the nearest server — faster loading everywhere</div>
+                    </div>
+                </div>
+                <div class="info-pill reveal d2">
+                    <div class="pill-icon-box">🆓</div>
+                    <div>
+                        <div class="pill-title">Generous Free Tier</div>
+                        <div class="pill-desc">25 GB storage + 25 GB bandwidth free every month</div>
+                    </div>
+                </div>
+                <div class="info-pill reveal d3">
+                    <div class="pill-icon-box">⚡</div>
+                    <div>
+                        <div class="pill-title">Auto Optimisation</div>
+                        <div class="pill-desc">Automatically compresses and converts images for faster loading</div>
+                    </div>
+                </div>
+                <div class="info-pill reveal d4">
+                    <div class="pill-icon-box">🔒</div>
+                    <div>
+                        <div class="pill-title">Secure & Reliable</div>
+                        <div class="pill-desc">99.9% uptime, trusted by major enterprises globally</div>
+                    </div>
+                </div>
+                <div class="info-pill reveal d5">
+                    <div class="pill-icon-box">📐</div>
+                    <div>
+                        <div class="pill-title">Future-Ready</div>
+                        <div class="pill-desc">Supports resizing, cropping, and smart transformations as you grow</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 5 — WHAT CHANGES ===================== -->
+    <section class="slide slide-light" id="slide-4" aria-label="What changes">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label">The Change</span>
+                <div class="tag-line"></div>
+            </div>
+            <h2 class="slide-h2 reveal d2">One Thing Changes</h2>
+            <p class="slide-body reveal d3">
+                Only where photos are stored changes. Everything else in the app stays exactly the same.
+            </p>
+            <div class="comparison-row reveal d4">
+                <div class="cmp-card cmp-old">
+                    <div class="cmp-label">Before — Firebase</div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Photos uploaded to Google's Firebase Storage</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Long, complex Firebase download URLs stored</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Images served from a single US data centre</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Storage costs grow with every new member</div></div>
+                </div>
+                <div class="cmp-arrow" aria-hidden="true">→</div>
+                <div class="cmp-card cmp-new">
+                    <div class="cmp-label">After — Cloudinary</div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Photos uploaded to Cloudinary's media platform</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Clean, short, reliable Cloudinary URLs stored</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">Images delivered via global CDN, near each user</div></div>
+                    <div class="cmp-item"><div class="cmp-dot"></div><div class="cmp-text">25 GB free tier — no recurring storage bill</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 6 — WHAT STAYS THE SAME ===================== -->
+    <section class="slide slide-light" id="slide-5" aria-label="What stays the same">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label">Continuity</span>
+                <div class="tag-line"></div>
+            </div>
+            <h2 class="slide-h2 reveal d2">Everything Else Stays the Same</h2>
+            <p class="slide-body reveal d3">
+                Your staff and members will notice no difference — the app looks and works exactly as it does today.
+            </p>
+            <div class="stays-grid">
+                <div class="stays-item reveal d3">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">Profile photos appear on all member cards and profiles</div>
+                </div>
+                <div class="stays-item reveal d4">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">Photos captured the same way — tap camera, done</div>
+                </div>
+                <div class="stays-item reveal d4">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">All existing data in Google Sheets left untouched</div>
+                </div>
+                <div class="stays-item reveal d5">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">Gym Members, Wellness Patients, and Inquiries unchanged</div>
+                </div>
+                <div class="stays-item reveal d5">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">No retraining needed — zero workflow changes for staff</div>
+                </div>
+                <div class="stays-item reveal d6">
+                    <div class="stays-check">✓</div>
+                    <div class="stays-text">Every historical record and photo fully preserved</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 7 — MIGRATION PROCESS ===================== -->
+    <section class="slide slide-light" id="slide-6" aria-label="Migration process">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label">The Process</span>
+                <div class="tag-line"></div>
+            </div>
+            <h2 class="slide-h2 reveal d2">A Safe, Two-Phase Migration</h2>
+            <p class="slide-body reveal d3">
+                Existing photos are migrated first — before the new code goes live. The app never goes offline.
+            </p>
+            <div class="migration-phases reveal d4">
+                <div class="phase-card phase-1">
+                    <div class="phase-num">01</div>
+                    <div class="phase-title">Move Existing Photos</div>
+                    <ul class="phase-steps">
+                        <li class="phase-step"><div class="step-num">1</div>Read all records from Google Sheets</li>
+                        <li class="phase-step"><div class="step-num">2</div>Download each photo from Firebase</li>
+                        <li class="phase-step"><div class="step-num">3</div>Re-upload to Cloudinary, organised by category</li>
+                        <li class="phase-step"><div class="step-num">4</div>Update each row with the new Cloudinary link</li>
+                    </ul>
+                    <div class="live-badge">🟢 &nbsp;App stays live throughout</div>
+                </div>
+                <div class="phase-card phase-2">
+                    <div class="phase-num">02</div>
+                    <div class="phase-title">Switch New Uploads to Cloudinary</div>
+                    <ul class="phase-steps">
+                        <li class="phase-step"><div class="step-num">1</div>Update the app's upload function</li>
+                        <li class="phase-step"><div class="step-num">2</div>Deploy updated app to Netlify</li>
+                        <li class="phase-step"><div class="step-num">3</div>All new photos now go to Cloudinary</li>
+                        <li class="phase-step"><div class="step-num">4</div>Firebase Storage safely retired</li>
+                    </ul>
+                    <div class="live-badge">🔵 &nbsp;Seamless, instant cutover</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 8 — BENEFITS ===================== -->
+    <section class="slide slide-light" id="slide-7" aria-label="Benefits">
+        <div class="slide-content">
+            <div class="slide-tag reveal d1">
+                <span class="tag-label">What You Gain</span>
+                <div class="tag-line"></div>
+            </div>
+            <h2 class="slide-h2 reveal d2">Six Reasons to Make the Switch</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card reveal d2">
+                    <div class="ben-icon">🚀</div>
+                    <div class="ben-title">Faster Photo Loading</div>
+                    <div class="ben-desc">Global CDN delivers images from the closest server to every user</div>
+                </div>
+                <div class="benefit-card reveal d3">
+                    <div class="ben-icon">💰</div>
+                    <div class="ben-title">Cost Savings</div>
+                    <div class="ben-desc">Cloudinary's free tier covers your scale — no recurring storage bill</div>
+                </div>
+                <div class="benefit-card reveal d3">
+                    <div class="ben-icon">🛡️</div>
+                    <div class="ben-title">Zero Data Loss</div>
+                    <div class="ben-desc">Every existing photo safely migrated before going live</div>
+                </div>
+                <div class="benefit-card reveal d4">
+                    <div class="ben-icon">⚡</div>
+                    <div class="ben-title">Auto-Optimised Images</div>
+                    <div class="ben-desc">Cloudinary automatically compresses photos without quality loss</div>
+                </div>
+                <div class="benefit-card reveal d5">
+                    <div class="ben-icon">🔮</div>
+                    <div class="ben-title">Future-Proof</div>
+                    <div class="ben-desc">Ready for thumbnails, smart resizing, and image transformations</div>
+                </div>
+                <div class="benefit-card reveal d5">
+                    <div class="ben-icon">🏃</div>
+                    <div class="ben-title">Zero Downtime</div>
+                    <div class="ben-desc">Migration happens in the background — your app never goes offline</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================== SLIDE 9 — NEXT STEPS ===================== -->
+    <section class="slide slide-light" id="slide-8" aria-label="Next steps">
+        <div class="slide-content">
+            <div class="next-layout">
+                <div class="next-col">
+                    <div class="slide-tag reveal d1">
+                        <span class="tag-label">Action Plan</span>
+                        <div class="tag-line"></div>
+                    </div>
+                    <h2 class="slide-h2 reveal d2">Next Steps</h2>
+                    <p class="slide-body reveal d3">A clear, low-risk path — estimated at 1–2 days of work.</p>
+
+                    <div class="action-steps">
+                        <div class="action-step reveal d3">
+                            <div class="action-circle">1</div>
+                            <div>
+                                <div class="action-title">Set Up Cloudinary Account</div>
+                                <div class="action-desc">Create a free account and configure an upload preset</div>
+                            </div>
+                        </div>
+                        <div class="action-step reveal d4">
+                            <div class="action-circle">2</div>
+                            <div>
+                                <div class="action-title">Run the Migration Script</div>
+                                <div class="action-desc">Backfill all existing photos from Firebase to Cloudinary</div>
+                            </div>
+                        </div>
+                        <div class="action-step reveal d4">
+                            <div class="action-circle">3</div>
+                            <div>
+                                <div class="action-title">Verify All Photos</div>
+                                <div class="action-desc">Confirm every record across all 3 sheets has a Cloudinary URL</div>
+                            </div>
+                        </div>
+                        <div class="action-step reveal d5">
+                            <div class="action-circle">4</div>
+                            <div>
+                                <div class="action-title">Deploy Updated App</div>
+                                <div class="action-desc">Push new upload code to Netlify — migration complete</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="next-col closing-col" style="display:flex; align-items:center; max-width:38%;">
+                    <div class="closing-card reveal d5" style="width:100%;">
+                        <div class="closing-orb" aria-hidden="true"></div>
+                        <div class="closing-h">Ready when you are.</div>
+                        <div class="closing-p">All photos preserved. App stays live. Faster images from day one.</div>
+                        <div class="closing-tag">✦ &nbsp;Aastha Health Plus</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Keyboard · Touch · Wheel · Nav dots · Progress · Animations
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides      = document.querySelectorAll('.slide');
+                this.total       = this.slides.length;
+                this.current     = 0;
+                this.progressBar = document.getElementById('progressBar');
+
+                this.setupObserver();
+                this.setupNavDots();
+                this.setupKeyboard();
+                this.setupTouch();
+                this.setupWheel();
+            }
+
+            /* IntersectionObserver — adds .visible to fire CSS entrance animations */
+            setupObserver() {
+                const io = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('visible');
+                            this.updateUI(Array.from(this.slides).indexOf(e.target));
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(s => io.observe(s));
+            }
+
+            /* Build navigation dots from slide count */
+            setupNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    btn.setAttribute('aria-label', `Slide ${i + 1} of ${this.total}`);
+                    btn.addEventListener('click', () => this.goTo(i));
+                    nav.appendChild(btn);
+                });
+            }
+
+            /* Sync active dot and progress bar width */
+            updateUI(index) {
+                this.current = index;
+                document.querySelectorAll('.nav-dot').forEach((d, i) =>
+                    d.classList.toggle('active', i === index));
+                if (this.progressBar)
+                    this.progressBar.style.width = ((index + 1) / this.total * 100) + '%';
+            }
+
+            /* Smooth-scroll to target slide */
+            goTo(index) {
+                if (index < 0 || index >= this.total) return;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            /* Arrow keys, Space, Page Up/Down, Home, End */
+            setupKeyboard() {
+                document.addEventListener('keydown', e => {
+                    const fwd = ['ArrowDown', 'ArrowRight', ' ', 'PageDown'];
+                    const bwd = ['ArrowUp',   'ArrowLeft',       'PageUp'];
+                    if (fwd.includes(e.key)) { e.preventDefault(); this.goTo(this.current + 1); }
+                    if (bwd.includes(e.key)) { e.preventDefault(); this.goTo(this.current - 1); }
+                    if (e.key === 'Home')    { e.preventDefault(); this.goTo(0); }
+                    if (e.key === 'End')     { e.preventDefault(); this.goTo(this.total - 1); }
+                });
+            }
+
+            /* Swipe up/down on touch screens */
+            setupTouch() {
+                let sy = 0, sx = 0;
+                document.addEventListener('touchstart', e => { sy = e.touches[0].clientY; sx = e.touches[0].clientX; }, { passive: true });
+                document.addEventListener('touchend',   e => {
+                    const dy = sy - e.changedTouches[0].clientY;
+                    const dx = sx - e.changedTouches[0].clientX;
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50)
+                        this.goTo(this.current + (dy > 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            /* Mouse wheel with 800 ms debounce to prevent over-scrolling */
+            setupWheel() {
+                let t = null;
+                document.addEventListener('wheel', e => {
+                    if (t) return;
+                    t = setTimeout(() => { t = null; }, 800);
+                    this.goTo(this.current + (e.deltaY > 0 ? 1 : -1));
+                }, { passive: true });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+            // Trigger entrance animations on first slide immediately
+            setTimeout(() => document.querySelector('.slide')?.classList.add('visible'), 80);
+        });
+    </script>
+</body>
+</html>
