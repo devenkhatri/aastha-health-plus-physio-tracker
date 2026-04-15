@@ -146,7 +146,7 @@ const ManageWellnessPatients: React.FC = () => {
 
 
   const uploadPhoto = async () => {
-    return await uploadFileToFirebase('/wellnesspatient', photos && photos.length > 0 && photos[0])
+    return await uploadFileToFirebase('wellnesspatient', photos && photos.length > 0 && photos[0])
   }
 
   const removePhoto = () => {

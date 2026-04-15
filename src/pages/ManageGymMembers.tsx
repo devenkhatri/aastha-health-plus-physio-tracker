@@ -148,7 +148,7 @@ const ManageGymMembers: React.FC = () => {
   }
 
   const uploadPhoto = async () => {
-    return await uploadFileToFirebase('/gymmembers', photos && photos.length > 0 && photos[0])
+    return await uploadFileToFirebase('gymmembers', photos && photos.length > 0 && photos[0])
   }
 
   const removePhoto = () => {

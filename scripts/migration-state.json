@@ -1,0 +1,9 @@
+{
+  "progress": [],
+  "stats": {
+    "total": 1357,
+    "migrated": 647,
+    "failed": 0,
+    "skipped": 710
+  }
+}

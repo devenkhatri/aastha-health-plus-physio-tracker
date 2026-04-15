@@ -26,7 +26,6 @@
     "@types/react-router-dom": "^5.1.7",
     "axios": "^1.2.0",
     "copy-to-clipboard": "^3.3.3",
-    "firebase": "^9.15.0",
     "google-sheets-mapper": "^2.0.0",
     "google-spreadsheet": "^3.3.0",
     "history": "^4.9.0",
@@ -94,6 +93,8 @@
     "@capacitor/cli": "4.5.0",
     "@types/lodash": "^4.14.190",
     "@types/preval.macro": "^3.0.0",
+    "form-data": "^4.0.5",
+    "node-fetch": "^3.3.2",
     "staticrypt": "^2.6.0"
   },
   "description": "An Ionic project"

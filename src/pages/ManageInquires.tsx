@@ -130,7 +130,7 @@ const ManageInquires: React.FC = () => {
   }
 
   const uploadPhoto = async () => {
-    return await uploadFileToFirebase('/inquires', photos && photos.length > 0 && photos[0])
+    return await uploadFileToFirebase('inquires', photos && photos.length > 0 && photos[0])
   }
 
   const removePhoto = () => {

@@ -1,5 +1,3 @@
-import { storage } from '../firebaseConfig';
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import GoogleSheetsMapper from 'google-sheets-mapper';
 import { useQuery } from "react-query";
 import axios from 'axios';
@@ -12,19 +10,45 @@ export const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, }).format(amount)
 }
 
-export const uploadFileToFirebase = (pathprefix: any, file: any) => {
+export const uploadFileToCloudinary = async (pathprefix: string, file: any) => {
     if (!file) return;
-    const storageRef = ref(storage, `${pathprefix}/${file.filepath}`);
-    return uploadString(storageRef, file.base64Data, 'data_url').then((snapshot) => {
-        console.log('Uploaded a base64Data string!', snapshot);
-        return getDownloadURL(storageRef)
-            .then((url) => {
-                console.log("****** downloadURL ", url)
-                return url;
-            })
-    });
-
+    
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+    
+    if (!cloudName || !uploadPreset) {
+        console.error('Cloudinary not configured');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file.base64Data);
+    formData.append('folder', pathprefix);
+    formData.append('upload_preset', uploadPreset);
+    
+    try {
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        );
+        const data = await response.json();
+        if (data.secure_url) {
+            console.log('Uploaded to Cloudinary:', data.secure_url);
+            return data.secure_url;
+        } else if (data.error) {
+            console.error('Cloudinary error:', data.error);
+            return;
+        }
+    } catch (error) {
+        console.error('Upload failed:', error);
+        return;
+    }
 }
+
+export const uploadFileToFirebase = uploadFileToCloudinary;
 
 const appendWriteReviewLink = () => {
     return "\r\n\r\n Your Feedback Matters! Please tell us more about your experience at https://bit.ly/3XSjIjV, so that we can improve our service. "
